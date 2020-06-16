@@ -15,14 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <gtk/gtk.h>
+#include "rosetta.h"
 #include "window.h"
 
-#define UNUSE_ATTR	__attribute__((unused))
+#define APP_TITLE   "Rosetta IDE"
+#define APP_VERSION "v0.0.0"
+
+#define UNUSED_ATTR	__attribute__((unused))
 
 static void	 app_activate(GtkApplication *app, gpointer user_data);
-
-const char *app_title = "Rosetta IDE v0.0.0";
 
 /*
  * Entry point
@@ -30,17 +31,10 @@ const char *app_title = "Rosetta IDE v0.0.0";
 int main(int argc, char **argv) {
   int status;
   GtkApplication *app = gtk_application_new("rosetta.ide", G_APPLICATION_FLAGS_NONE);
+  Rosetta *rosetta = rosetta_init(app, argc, argv);
 
-  if (argc <= 1) {
-    g_signal_connect(app, "activate", G_CALLBACK(app_activate), NULL);
-  } else if (argc == 2) {
-    g_signal_connect(app, "activate", G_CALLBACK(app_activate), argv[1]);
-  } else {
-    fprintf(stderr, "Too many arguments\n");
-    return 1;
-  }
+  g_signal_connect(app, "activate", G_CALLBACK(app_activate), rosetta);
 
-  /* status = g_application_run(G_APPLICATION(app), argc, argv); */
   status = g_application_run(G_APPLICATION(app), 0, NULL);
   g_object_unref(app);
 
@@ -48,5 +42,6 @@ int main(int argc, char **argv) {
 }
 
 static void app_activate(GtkApplication *app, gpointer data) {
-  rosetta_window_new(app, app_title, (char *) data);
+  Rosetta *rosetta = (Rosetta *) data;
+  rosetta_window_new(app, APP_TITLE " " APP_VERSION, rosetta->argc >= 1 ? rosetta->argv[1] : NULL);
 }
