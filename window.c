@@ -23,7 +23,9 @@
 
 #include <stdlib.h>
 
+#define UNUSED_ATTR	__attribute__((unused))
 #define CHUNK 1024 /* read 1024 bytes at a time */
+#define SSM(m, w, l) scintilla_send_message(sci, (m), (w), (l))
 
 GtkWidget	*rosetta_menu_bar_new(GtkApplication *);
 GtkWidget	*rosetta_menu_bar_file_menu_new(GtkApplication *);
@@ -31,7 +33,14 @@ GtkWidget	*rosetta_editor_new(char *);
 void		 rosetta_editor_setup(ScintillaObject *, char *);
 void		 rosetta_editor_show_default_text(ScintillaObject *);
 void		 rosetta_editor_open_file(ScintillaObject *, char *);
+void		 rosetta_editor_save_file(ScintillaObject *, char *);
 static void	 quit_menu_activated(gpointer *);
+static void	 save_menu_activated(gpointer *);
+
+void open_fd();
+
+ScintillaObject *sci;
+GtkWidget *parent_window;
 
 GtkWidget
 *rosetta_window_new(GtkApplication *app, const char *app_title, char *filename)
@@ -40,6 +49,10 @@ GtkWidget
   GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   GtkWidget *menubar = rosetta_menu_bar_new(app);
   GtkWidget *editor = rosetta_editor_new(filename);
+
+  parent_window = window;
+
+  sci = SCINTILLA(editor);
 
   gtk_container_add(GTK_CONTAINER(window), vbox);
   gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
@@ -71,15 +84,21 @@ GtkWidget
   GtkWidget *file_menu = gtk_menu_new();
 
   GtkWidget *file_menu_item = gtk_menu_item_new_with_mnemonic("_File");
+  GtkWidget *save_menu_item = gtk_menu_item_new_with_mnemonic("_Save");
+  /* GtkWidget *saveas_menu_item = gtk_menu_item_new_with_mnemonic("S_ave as"); */
   GtkWidget *quit_menu_item = gtk_menu_item_new_with_mnemonic("_Quit");
 
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_menu_item), file_menu);
+  gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), save_menu_item);
   gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), quit_menu_item);
 
   /* Add events */
   g_signal_connect_swapped(quit_menu_item, "activate",
                            G_CALLBACK (quit_menu_activated), 
                            (gpointer) app);
+  g_signal_connect_swapped(save_menu_item, "activate",
+                           G_CALLBACK (save_menu_activated), 
+                           (gpointer) NULL);
 
   return file_menu_item;
 }
@@ -88,6 +107,13 @@ static void
 quit_menu_activated(gpointer *data)
 {
   g_application_quit(G_APPLICATION(data));
+}
+
+static void
+save_menu_activated(UNUSED_ATTR gpointer *data)
+{
+  open_fd();
+  rosetta_editor_save_file(sci, "test2.txt"); 
 }
 
 GtkWidget
@@ -103,8 +129,6 @@ void
 rosetta_editor_setup(ScintillaObject *sci, char *filename)
 {
   scintilla_set_id(sci, 0);
-
-#define SSM(m, w, l) scintilla_send_message(sci, (m), (w), (l))
 
   SSM(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
   SSM(SCI_SETIMEINTERACTION, SC_IME_WINDOWED, 0);
@@ -183,11 +207,76 @@ rosetta_editor_open_file(ScintillaObject *sci, char *filename)
   file = fopen(filename, "r");
   if (file) {
     while ((nread = fread(buf, 1, sizeof buf, file)) > 0) {
-      fwrite(buf, 1, nread, stdout);
+      /* fwrite(buf, 1, nread, stdout); */
       SSM(SCI_APPENDTEXT, nread, (sptr_t)buf);
-    } if (ferror(file)) {
+    }
+
+    if (ferror(file)) {
       /* deal with error */
     }
+
+    fclose(file);
+  }
+}
+
+void
+open_fd()
+{
+  GtkWidget *dialog;
+  GtkFileChooser *chooser;
+  GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+  gint res;
+
+  dialog = gtk_file_chooser_dialog_new ("Save File",
+                                        GTK_WINDOW(parent_window),
+                                        action,
+                                        "_Cancel",
+                                        GTK_RESPONSE_CANCEL,
+                                        "_Save",
+                                        GTK_RESPONSE_ACCEPT,
+                                        NULL);
+  chooser = GTK_FILE_CHOOSER (dialog);
+
+  gtk_file_chooser_set_do_overwrite_confirmation (chooser, TRUE);
+
+  /*
+  if (user_edited_a_new_document)
+    gtk_file_chooser_set_current_name (chooser, "Untitled document");
+  else
+    gtk_file_chooser_set_filename (chooser,
+                                   existing_filename);
+  */
+  gtk_file_chooser_set_current_name (chooser, "Untitled document");
+
+  res = gtk_dialog_run (GTK_DIALOG (dialog));
+  if (res == GTK_RESPONSE_ACCEPT) {
+    char *filename;
+
+    filename = gtk_file_chooser_get_filename (chooser);
+
+    rosetta_editor_save_file(sci, filename);
+
+    g_free (filename);
+  }
+
+  gtk_widget_destroy (dialog);
+}
+
+void
+rosetta_editor_save_file(ScintillaObject *sci, char *filename)
+{
+  FILE *file = fopen(filename, "w");
+  int n_len = (int) SSM(SCI_GETLENGTH, 0, (sptr_t) NULL);
+  char *buf = (char *) malloc(sizeof(char) * (n_len + 1));
+
+  SSM(SCI_GETTEXT, n_len+1, (sptr_t)buf);
+  
+  if (file) {
+    fwrite(buf, 1, n_len, file);
+    if (ferror(file)) {
+      /* deal with error */
+    }
+
     fclose(file);
   }
 }
