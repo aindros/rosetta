@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
   return status;
 }
 
-static void app_activate(GtkApplication *app, gpointer data) {
-  Rosetta *rosetta = (Rosetta *) data;
-  rosetta_window_new(app, APP_TITLE " " APP_VERSION, rosetta->argc >= 1 ? rosetta->argv[1] : NULL);
+static void app_activate(UNUSED_ATTR GtkApplication *app, gpointer data) {
+  rosetta_window_new((Rosetta *) data, APP_TITLE " " APP_VERSION);
 }
