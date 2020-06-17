@@ -62,7 +62,7 @@ LIBS = -lm -lstdc++
 all: $(PROG)
 
 clean:
-	rm -rf *.o $(PROG)*
+	rm -rf *.o $(PROG)
 
 .c.o:
 	$(CC) $(DEFINES) $(INCLUDES) $(CONFIG_FLAGS) $(CFLAGS) -c ${.IMPSRC}
