@@ -20,8 +20,11 @@
 
 #include <gtk/gtk.h>
 
-/* Defining a number power of 2. This is the max number of editors can be opened */
-#define MAX_EDITORS 8
+#include <Scintilla.h>
+#include <SciLexer.h>
+#include <ScintillaWidget.h>
+
+#define UNUSED_ATTR	__attribute__((unused))
 
 typedef struct Rosetta {
   int			  argc;
@@ -31,9 +34,7 @@ typedef struct Rosetta {
   GtkWidget 		 *menubar;
   GtkWidget 		 *vbox;
   GtkWidget 		 *hbox;
-  GtkWidget		**editors;
-  int			  n_editors;
-  int			  max_editors;
+  GtkWidget		 *editor;
 } Rosetta;
 
 Rosetta		*rosetta_init(GtkApplication *, int, char **);

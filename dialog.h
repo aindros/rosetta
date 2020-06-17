@@ -15,16 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
+#ifndef __DIALOG_H__
+#define __DIALOG_H__
+
 #include "rosetta.h"
 
-Rosetta
-*rosetta_init(GtkApplication *app, int argc, char **argv)
-{
-  Rosetta *rosetta = (Rosetta *) malloc(sizeof(Rosetta));
-  rosetta->app  = app;
-  rosetta->argc = argc;
-  rosetta->argv = argv;
+void		 rosetta_save_file_dialog(Rosetta *);
 
-  return rosetta;
-}
+#endif

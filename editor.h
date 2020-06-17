@@ -15,16 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
+#ifndef __EDITOR_H__
+#define __EDITOR_H__
+
 #include "rosetta.h"
 
-Rosetta
-*rosetta_init(GtkApplication *app, int argc, char **argv)
-{
-  Rosetta *rosetta = (Rosetta *) malloc(sizeof(Rosetta));
-  rosetta->app  = app;
-  rosetta->argc = argc;
-  rosetta->argv = argv;
+GtkWidget	*rosetta_editor_new(char *);
+void		 rosetta_editor_save_file(ScintillaObject *, char *);
+void		 rosetta_editor_open_file(ScintillaObject *, char *);
 
-  return rosetta;
-}
+#endif
