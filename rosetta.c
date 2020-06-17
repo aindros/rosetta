@@ -15,16 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "rosetta.h"
 #include <stdlib.h>
+#include "rosetta.h"
 
 Rosetta
 *rosetta_init(GtkApplication *app, int argc, char **argv)
 {
   Rosetta *rosetta = (Rosetta *) malloc(sizeof(Rosetta));
-  rosetta->app = app;
+  rosetta->app  = app;
   rosetta->argc = argc;
   rosetta->argv = argv;
+
+  /* Allocation of editors */
+  rosetta->editors     = malloc(sizeof *rosetta->editors);
+  rosetta->n_editors   = 0;
+  rosetta->max_editors = MAX_EDITORS;
 
   return rosetta;
 }

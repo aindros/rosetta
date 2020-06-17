@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include "rosetta.h"
 #include "window.h"
 
 #include <Scintilla.h>
@@ -43,28 +44,37 @@ ScintillaObject *sci;
 GtkWidget *parent_window;
 
 GtkWidget
-*rosetta_window_new(GtkApplication *app, const char *app_title, char *filename)
+*rosetta_window_new(Rosetta *rosetta, const char *app_title)
 {
-  GtkWidget *window = gtk_application_window_new(app);
-  GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-  GtkWidget *menubar = rosetta_menu_bar_new(app);
+  char *filename = rosetta->argc >= 1 ? rosetta->argv[1] : NULL;
   GtkWidget *editor = rosetta_editor_new(filename);
 
-  parent_window = window;
+  /* Main window */
+  rosetta->window = gtk_application_window_new(rosetta->app);
 
-  sci = SCINTILLA(editor);
+  /* Containers */
+  rosetta->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  rosetta->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
-  gtk_container_add(GTK_CONTAINER(window), vbox);
-  gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), editor, TRUE, TRUE, 0);
+  /* Menubar */
+  rosetta->menubar = rosetta_menu_bar_new(rosetta->app);
 
-  gtk_window_set_title(GTK_WINDOW(window), app_title);
-  gtk_window_set_default_size(GTK_WINDOW(window), 760, 490);
+  gtk_window_set_title(GTK_WINDOW(rosetta->window), app_title);
+  gtk_window_set_default_size(GTK_WINDOW(rosetta->window), 760, 490);
+  
+  gtk_container_add(GTK_CONTAINER(rosetta->window), rosetta->vbox);
 
-  gtk_widget_show_all(window);
+  gtk_box_pack_start(GTK_BOX(rosetta->vbox), rosetta->menubar, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(rosetta->vbox), rosetta->hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(rosetta->hbox), editor, TRUE, TRUE, 0);
+
+  gtk_widget_show_all(rosetta->window);
   gtk_widget_grab_focus(editor);
 
-  return window;
+  parent_window = rosetta->window;
+  sci = SCINTILLA(editor);
+
+  return rosetta->window;
 }
 
 GtkWidget

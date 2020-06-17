@@ -20,11 +20,20 @@
 
 #include <gtk/gtk.h>
 
+/* Defining a number power of 2. This is the max number of editors can be opened */
+#define MAX_EDITORS 8
+
 typedef struct Rosetta {
-  int			 argc;
+  int			  argc;
   char			**argv;
-  GtkApplication	*app;
-  GtkWidget		*window;
+  GtkApplication	 *app;
+  GtkWidget		 *window;
+  GtkWidget 		 *menubar;
+  GtkWidget 		 *vbox;
+  GtkWidget 		 *hbox;
+  GtkWidget		**editors;
+  int			  n_editors;
+  int			  max_editors;
 } Rosetta;
 
 Rosetta		*rosetta_init(GtkApplication *, int, char **);

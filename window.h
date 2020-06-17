@@ -18,8 +18,8 @@
 #ifndef __WINDOW_H__
 #define __WINDOW_H__
 
-#include <gtk/gtk.h>
+#include "rosetta.h"
 
-GtkWidget	*rosetta_window_new(GtkApplication *, const char *, char *filename);
+GtkWidget	*rosetta_window_new(Rosetta *, const char *);
 
 #endif
