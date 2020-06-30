@@ -18,7 +18,6 @@
 #include "editor.h"
 
 #define CHUNK 1024 /* read 1024 bytes at a time */
-#define SSM(m, w, l) scintilla_send_message(sci, (m), (w), (l))
 
 void		 rosetta_editor_setup(ScintillaObject *, char *);
 void		 rosetta_editor_show_default_text(ScintillaObject *);
@@ -102,6 +101,10 @@ rosetta_editor_show_default_text(ScintillaObject *sci)
                     GTK_MICRO_VERSION);
 
   SSM(SCI_APPENDTEXT, length, (sptr_t)buf);
+
+  // Set the save point, clear undos
+  SSM(SCI_SETSAVEPOINT, 0, 0); /* For Scintilla there are no more edits in the buffer */
+  SSM(SCI_EMPTYUNDOBUFFER, 0, 0); /* If you press CTRL+Z happens nothing */
 }
 
 void
@@ -123,6 +126,9 @@ rosetta_editor_open_file(ScintillaObject *sci, char *filename)
     }
 
     fclose(file);
+    // Set the save point, clear undos
+    SSM(SCI_SETSAVEPOINT, 0, 0); /* For Scintilla there are no more edits in the buffer */
+    SSM(SCI_EMPTYUNDOBUFFER, 0, 0); /* If you press CTRL+Z happens nothing */
   }
 }
 

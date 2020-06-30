@@ -20,6 +20,8 @@
 
 #include "rosetta.h"
 
+#define SSM(m, w, l) scintilla_send_message(sci, (m), (w), (l))
+
 GtkWidget	*rosetta_editor_new(char *);
 void		 rosetta_editor_save_file(ScintillaObject *, char *);
 void		 rosetta_editor_open_file(ScintillaObject *, char *);
