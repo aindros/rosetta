@@ -126,7 +126,7 @@ rosetta_editor_open_file(ScintillaObject *sci, char *filename)
     }
 
     fclose(file);
-    // Set the save point, clear undos
+    /* Set the save point, clear undos */
     SSM(SCI_SETSAVEPOINT, 0, 0); /* For Scintilla there are no more edits in the buffer */
     SSM(SCI_EMPTYUNDOBUFFER, 0, 0); /* If you press CTRL+Z happens nothing */
   }
@@ -148,5 +148,8 @@ rosetta_editor_save_file(ScintillaObject *sci, char *filename)
     }
 
     fclose(file);
+    /* Set the save point, clear undos */
+    SSM(SCI_SETSAVEPOINT, 0, 0); /* For Scintilla there are no more edits in the buffer */
+    SSM(SCI_EMPTYUNDOBUFFER, 0, 0); /* If you press CTRL+Z happens nothing */
   }
 }
