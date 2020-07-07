@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdlib.h>
+#include <time.h>
 #include "rosetta.h"
 #include "window.h"
 
@@ -30,8 +32,19 @@ static void	 app_activate(GtkApplication *app, gpointer user_data);
  */
 int main(int argc, char **argv) {
   int status;
-  GtkApplication *app = gtk_application_new("rosetta.ide", G_APPLICATION_FLAGS_NONE);
-  Rosetta *rosetta = rosetta_init(app, argc, argv);
+  GtkApplication *app;
+  Rosetta *rosetta;
+  char buffer[33];
+
+  int rand_id;
+  srand(time(NULL));
+  rand_id = rand();
+  sprintf(buffer, "%d", rand_id);
+
+  app = gtk_application_new(NULL, G_APPLICATION_FLAGS_NONE);
+  /* Set an application ID to enable uniqueness */
+  /*app = gtk_application_new("rosetta.ide", G_APPLICATION_FLAGS_NONE);*/
+  rosetta = rosetta_init(app, argc, argv);
 
   g_signal_connect(app, "activate", G_CALLBACK(app_activate), rosetta);
 
