@@ -36,6 +36,7 @@ typedef struct Rosetta {
   GtkWidget 		 *hbox;
   GtkWidget		 *editor;
   char			 *filename;
+  char			 *basename;
 } Rosetta;
 
 Rosetta		*rosetta_init(GtkApplication *, int, char **);
